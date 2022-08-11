@@ -18,10 +18,9 @@
 //---------------------------------------------------------------------
 class position {
     friend class game_state;		// Allow game state to directly access private parts
-    friend class move;
 private:                          // Put in your internal representation
     char x, y;                      // Think of this like coordinates, so each instance of this wil only be one coordinate e.g. A, 1
-    char* positionStr = new char[3];
+    char positionStr [3];
 public:
     position(void);					// Default constructor
     position(char a, char b);
@@ -55,10 +54,10 @@ position::position(char a, char b) // Main constructor
 position::position(position &p){
     this->x = p.x;
     this->y = p.y;
-    this->positionStr = p.positionStr;
+    //this->positionStr = p.positionStr; // cirrently char [3] not assignable
 }
 position::~position(){
-    delete[] positionStr;
+    //delete[] positionStr;
 }
 
 // Sets a position from a string
@@ -91,7 +90,7 @@ bool position::is_valid(void) {
 void position::operator =(const position& p) {
     this->x = p.x;
     this->y = p.y;
-    this->positionStr = p.positionStr;
+//    this->positionStr = p.positionStr; // same as other one
 }
 
 
@@ -109,12 +108,13 @@ class move {
 private:
     position from;
     position to;
-    char* moveStr = new char[5];
+    //char* moveStr = new char[6];
+    char moveStr [6];
 public:
     move(void);							        // Default constructor
     move(position& f, position& t);	        // From two positions
 
-    ~move(); /*SHOULD I BE HAVING DESTRUCTORS HERE OR SHOULD/CAN IT BE DONE VIA THE GAME STATE DESTRCUTOR??? */
+    ~move(); /* #TO DO SHOULD I BE HAVING DESTRUCTORS HERE OR SHOULD/CAN IT BE DONE VIA THE GAME STATE DESTRCUTOR??? */
 
     void from_text(const char* str);		    // Converts a string to a move. String must be in the form "A4-B3"
     char* to_text(void);					    // Converts the internal representation to a string
@@ -134,16 +134,9 @@ move::move(void){
 move::move(position& f, position& t) { //Eg. B1 to A2
     this->from = f;
     this->to = t;
-
-    moveStr[0] = f.x;
-    moveStr[1] = f.y;
-    moveStr[2] = '-';
-    moveStr[3] = t.x;
-    moveStr[4] = t.y;
-    moveStr[5] = '\0';
 }
 move::~move(){
-    delete[] moveStr;
+    //delete[] moveStr;
 }
 void move::from_text(const char* str) { // Converts a string to a move. String must be in the form "A4-B3"
     this->from = position(str[0], str[1]);
@@ -158,8 +151,6 @@ char* move::to_text(void) { //converts a move to a string. String must be in the
     moveStr[2] = '-';
     moveStr[3] = toStr[0];
     moveStr[4] = toStr[1];
-//    moveStr = strcat(this->from.to_text(), "_");
-//    moveStr = strcat(moveStr, this->from.to_text());
     moveStr[5] = '\0';
 
     return moveStr;
@@ -192,21 +183,12 @@ enum piece { EMPTY, RED_PAWN, GREEN_PAWN, RED_KING, GREEN_KING, INVALID };
 
 
 
-//Create a class representing the state of the game. For your internal representation consider
-//• How would you represent the game position? Where are the pieces?
-//• Whose turn is it to play?
-//• Is the game over?
-//• How many turns have been played?
+
 //---------------------------------------------------------------------
 // Represents the state of a game
 //---------------------------------------------------------------------
 class game_state {
 private:
-    /*char board[4][4] = { { "A1", "B1", "C1", "D1" },
-                            { "A2", "B2", "C2", "D2" },
-                            { "A3", "B3", "C3", "D3" },
-                            { "A4", "B4", "C4", "D4" }};*/
-
     //can do this, but, not ideal. 'Bad' practise because of memory issues
     piece board[4][4] = { {EMPTY, GREEN_PAWN, EMPTY, GREEN_PAWN},
                             { EMPTY, EMPTY, EMPTY, EMPTY },
@@ -276,7 +258,7 @@ void game_state::new_game( void ){
     this->board[0][3] = GREEN_PAWN;
     this->board[0][1] = GREEN_PAWN;
 
-    //this->board[4][4] = {                                                 WHY DOESNT THIS WORK????
+    //this->board[4][4] = {                                                 WHY DOESNT THIS WORK????        #TO DO
     //    {GREEN_PAWN, GREEN_PAWN, GREEN_PAWN, GREEN_PAWN},
     //    {EMPTY, EMPTY, EMPTY, EMPTY,},
     //    {EMPTY, EMPTY, EMPTY, EMPTY},
