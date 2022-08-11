@@ -1,9 +1,8 @@
 #ifndef CHECKERS_H
 #define CHECKERS_H
 
-#include <iostream>
-#include <ostream>
 #endif // CHECKERS_H
+
 #include <iostream>
 #include <ostream>
 
@@ -11,7 +10,6 @@
 // ID:  15331224
 
 // Header file for checkers game.
-// This version is for the submission at the start of week 3 - due date changed to 8th august
 
 //---------------------------------------------------------------------
 // Represents a square on the checkers board, for example A2, or B4
@@ -34,6 +32,8 @@ public:
 
     void offset(const int x, const int y);	// Offsets a position by x in the alpha value and y in the numeric value.
 };
+
+{ //position implementations
 
 position::position() {
     x = '\0';
@@ -101,6 +101,15 @@ void position::offset(const int a, const int b) {
     this->y = this->y + b;
 }
 
+}
+
+
+
+
+
+
+
+
 //---------------------------------------------------------------------
 // Represents a move to be made
 //---------------------------------------------------------------------
@@ -123,10 +132,10 @@ public:
     position& get_from(void);		            // Gets either the starting
     position& get_to(void);		                // or ending position
     void get_move(void);                        //Provides a prompt to the user to enter a move. Make use of the from_text() method to convert the entered move appropriately.
-    void assign_moveStr();
+
 };
 
-
+{
 move::move(void){
     this->from = position('x', 'y');
     this->to = position('x', 'y');
@@ -170,6 +179,47 @@ position& move::get_from(void) {
 position& move::get_to(void) {
     return this->to;
 }
+
+void move::get_move(void){}
+
+}
+
+
+
+
+
+
+
+//---------------------------------------------------------------------
+// Represents a linked list of moves
+//---------------------------------------------------------------------
+//DO LAST!!! #TO DO
+
+class move_list {
+  private:
+    move m;             // The move in the list
+    move_list *next;    // The next entry in the list.
+public:
+  move_list( const move &m );   // Constructor
+  ~move_list();                 // Destructor – removes all items in the list.
+  move_list * add( move_list* m ); // Inserts m into the start of he list, and returns the new start.
+
+//  Note that for the move_list constructor, you may find it convenient to implement either:
+  //move::move( const move &m ); // move copy constructor or,
+  //void move::operator =( const move &m ); // move assignment operator
+
+ };
+
+move_list::move_list(const move &m) {
+
+}
+
+move_list::~move_list(){  }
+
+move_list * move_list::add( move_list* m ){}
+
+
+
 
 
 
@@ -215,6 +265,12 @@ public:
     void increment_move(void);	// Increment move number (and state)
 
     piece get_piece(const position& p); 	// What piece is at the specified position
+
+    void display( void ); // Provides a simple user interface to display your game using text-based graphics on the console window.
+    bool check_move( const move &m );// Checks if a provided move is a legal move, and return true if it is, otherwise return false. Note that if there is no piece at the starting square, the move is not legal.
+    void make_move( const move &m ); // Plays the move, and updates the game state accordingly. This includes the position of pieces on the board, the move counter, and whether or not the game is over. Don’t forget to convert pawns to kings when they reach the opposite end of the board.
+
+    move_list * find_moves( void );   // This should return a linked list of possible moves that can be made from the current position (depending on which player it is to play).
 
     void printBoard() {
         std::cout << "************************" << std::endl;
@@ -342,4 +398,23 @@ piece game_state::get_piece( const position& p ) { // represents a position e.g.
     return board[row][col];
 }
 
+void game_state::display()
+{
+    printBoard();
+}
 
+bool game_state::check_move(const move &m)
+{
+    //TO DO
+    return true;
+}
+
+void game_state::make_move(const move &m)
+{
+
+}
+
+move_list *game_state::find_moves()
+{
+
+}
