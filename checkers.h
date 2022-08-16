@@ -44,7 +44,7 @@ public:
 
 
 
-position::position() { //TODO
+position::position() {
     x = '\0';
     y = '\0';
 }
@@ -256,6 +256,10 @@ private:
                           { RED_PAWN, INVALID, RED_PAWN, INVALID },
                           { INVALID, GREEN_PAWN, INVALID, GREEN_PAWN },
                           { EMPTY, INVALID, EMPTY, INVALID } };
+
+    int redPiecesCaptured = 0;
+    int greenPiecesCaptured = 0;
+
     int moveCount = 0;
     bool isGameOver = false;
     bool isRedTurn = false;
@@ -422,12 +426,63 @@ void game_state::display()
 bool game_state::check_move(_move m)   /*Checks if a provided move is a legal move, and return true if it is, otherwise return false.
                                                 * Note that if there is no piece at the starting square, the move is not legal.*/
 {
-//    if(m.get_from()) TODO maybe put some red piece & red turn check here?
+    //find starting position of piece on board
+    int from_row = int(m.get_from().y) - 49; // "- 48" converts the char to int
+    int from_col = -1;
+    switch(m.get_from().x) {
+        case 'A':
+            from_col = 0;
+            break;
+        case 'B':
+            from_col = 1;
+            break;
+        case 'C':
+            from_col = 2;
+            break;
+        case 'D':
+            from_col = 3;
+            break;
+        default:
+            cout << "error" << endl;
+    }
+
+    //find ending position of piece on board
+    int to_row = int(m.get_to().y) - 49;
+    int to_col = -1;
+    switch(m.get_to().x) {
+        case 'A':
+            to_col = 0;
+            break;
+        case 'B':
+            to_col = 1;
+            break;
+        case 'C':
+            to_col = 2;
+            break;
+        case 'D':
+            to_col = 3;
+            break;
+        default:
+            cout << "error" << endl;
+    }
+
+
+
     if (m.get_to().is_valid() && m.get_from().is_valid()) { //move is a valid location on board
-        cout << "This is a valid location on board." << endl;
+        cout << "This is a valid location on board. ";
         if(get_piece(m.get_to()) == EMPTY) { // if the 'to' position isnt taken already/if there's a vacant space on the other side
             cout << "The new position is empty" << endl;
-            return true;
+
+            //if the from position is a green piece AND it is greens turn - then its a valid move
+                    //  this is to stop them being able to move an opposite piece and make it their colour
+            if ((this->board[from_row][from_col] == GREEN_PAWN || this->board[from_row][from_col] == GREEN_KING) && isGreenTurn) {
+//              // TODO limit pawns to only one direction
+                return true;
+            } else if((this->board[from_row][from_col] == RED_PAWN || this->board[from_row][from_col] == RED_KING) && isRedTurn){
+                return true; // TODO do i need to check if we are taking a player here?
+            } else {
+                cout << "You haven't selected a valid starting (or 'from') position." << endl;
+            }
         }
     }
     return false;
@@ -475,8 +530,34 @@ void game_state::make_move(_move &m) // removed const
             cout << "error" << endl;
     }
 
+    // check if just moving or taking another player
+    // if neither columns or rows are more then + or - 1, then its just a normal move
+    if(((from_row+1) == to_row || (from_row-1) == to_row) && ((from_col+1) == to_col || (from_col-1) == to_col)) {
+
+    } else { // try to take player
+        if (isGreenTurn) { //  this is to stop them being able to move an opposite piece abd make it their colour
+            // if its greens turn, they need to only be trying to take a red pawn -  ONLY FOR TAKING A PLAYER
+            if (board[from_row - to_row][from_col - to_col] == RED_PAWN ||
+                board[from_row - to_row][from_col - to_col] == RED_KING) {
+                redPiecesCaptured++;
+                board[from_row - to_row][from_col - to_col] = EMPTY;
+                cout << "You captured a red piece!" << endl;
+            }
+        } else if (isRedTurn){
+            // if its reds turn, they need to only be trying to take red pieces -  ONLY FOR TAKING A PLAYER
+            if (board[from_row - to_row][from_col - to_col] == RED_PAWN ||
+                board[from_row - to_row][from_col - to_col] == RED_KING) {
+                greenPiecesCaptured++;
+                board[from_row - to_row][from_col - to_col] = EMPTY;
+                cout << "You captured a green piece!" << endl;
+            }
+        }
+    }
+
+
     //move piece from a to be - set start to empty --> set end to new location
-    if ((this->board[from_row][from_col] == GREEN_PAWN || this->board[from_row][from_col] == GREEN_KING) && isGreenTurn) { //  this is to stop them being able to move an opposite piece abd make it their colour
+    if (isGreenTurn) { //  this is to stop them being able to move an opposite piece abd make it their colour
+
         // if reaching the end of the board, turn into a king OR if already a king, keep as a king
         if(to_row == 3 || this->board[from_row][from_col] == GREEN_KING) {
             board[to_row][to_col] = GREEN_KING;
@@ -484,7 +565,8 @@ void game_state::make_move(_move &m) // removed const
             board[to_row][to_col] = GREEN_PAWN;
         }
         this->board[from_row][from_col] = EMPTY; // set the old position to empty
-    } else if((this->board[from_row][from_col] == RED_PAWN || this->board[from_row][from_col] == RED_KING) && isRedTurn){
+
+    } else if(isRedTurn){
         if(to_row == 0 || this->board[from_row][from_col] == RED_KING) {
             board[to_row][to_col] = RED_KING;
         } else {
@@ -496,7 +578,7 @@ void game_state::make_move(_move &m) // removed const
     }
 }
 
-//move_list *game_state::find_moves()
+//move_list *game_state::find_moves() TODO
 //{
 //
 //}
