@@ -1,10 +1,20 @@
-#ifndef CHECKERS_H
-#define CHECKERS_H
+//
+// Created by Laressa Hood on 15/08/22.
+//
 
-#endif // CHECKERS_H
+#ifndef UNTITLED_CHECKERS_H
+#define UNTITLED_CHECKERS_H
+#include <iostream>
+#include <ostream>
+#include <cctype>
+
+#endif //UNTITLED_CHECKERS_H
 
 #include <iostream>
 #include <ostream>
+#include <cctype>
+
+using namespace std;
 
 // Name: Laressa Hood
 // ID:  15331224
@@ -16,9 +26,8 @@
 //---------------------------------------------------------------------
 class position {
     friend class game_state;		// Allow game state to directly access private parts
-private:                          // Put in your internal representation
+private:
     char x, y;                      // Think of this like coordinates, so each instance of this wil only be one coordinate e.g. A, 1
-    char positionStr [3];
 public:
     position(void);					// Default constructor
     position(char a, char b);
@@ -33,28 +42,22 @@ public:
     void offset(const int x, const int y);	// Offsets a position by x in the alpha value and y in the numeric value.
 };
 
-{ //position implementations
 
-position::position() {
+
+position::position() { //TODO
     x = '\0';
     y = '\0';
-    positionStr[0] = '\0';
 }
 
 position::position(char a, char b) // Main constructor
 {
     x = a;
     y = b;
-
-    positionStr[0] = this->x;
-    positionStr[1] = this->y;
-    positionStr[2] = '\0';
 }
 
 position::position(position &p){
     this->x = p.x;
     this->y = p.y;
-    //this->positionStr = p.positionStr; // cirrently char [3] not assignable
 }
 position::~position(){
     //delete[] positionStr;
@@ -68,9 +71,9 @@ void position::from_text( const char *str ) { //"A1"
 
 // Converts the internal representation to a string
 char* position::to_text(void) { //"A1"
+    static char positionStr[3] = {'0', '0', '\0'};
     positionStr[0] = this->x;
     positionStr[1] = this->y;
-    positionStr[2] = '\0';
     return positionStr;
 }
 
@@ -90,7 +93,6 @@ bool position::is_valid(void) {
 void position::operator =(const position& p) {
     this->x = p.x;
     this->y = p.y;
-//    this->positionStr = p.positionStr; // same as other one
 }
 
 
@@ -101,7 +103,7 @@ void position::offset(const int a, const int b) {
     this->y = this->y + b;
 }
 
-}
+
 
 
 
@@ -113,17 +115,17 @@ void position::offset(const int a, const int b) {
 //---------------------------------------------------------------------
 // Represents a move to be made
 //---------------------------------------------------------------------
-class move {
+class _move {
 private:
     position from;
     position to;
     //char* moveStr = new char[6];
-    char moveStr [6];
+//    char moveStr [6];
 public:
-    move(void);							        // Default constructor
-    move(position& f, position& t);	        // From two positions
+    _move(void);							        // Default constructor
+    _move(position& f, position& t);	        // From two positions
 
-    ~move(); /* #TO DO SHOULD I BE HAVING DESTRUCTORS HERE OR SHOULD/CAN IT BE DONE VIA THE GAME STATE DESTRCUTOR??? */
+    ~_move(); /* #TO DO SHOULD I BE HAVING DESTRUCTORS HERE OR SHOULD/CAN IT BE DONE VIA THE GAME STATE DESTRCUTOR??? */
 
     void from_text(const char* str);		    // Converts a string to a move. String must be in the form "A4-B3"
     char* to_text(void);					    // Converts the internal representation to a string
@@ -135,54 +137,62 @@ public:
 
 };
 
-{
-move::move(void){
+
+_move::_move(void){
     this->from = position('x', 'y');
     this->to = position('x', 'y');
 }
-move::move(position& f, position& t) { //Eg. B1 to A2
+_move::_move(position& f, position& t) { //Eg. B1 to A2
     this->from = f;
     this->to = t;
 }
-move::~move(){
+_move::~_move(){
     //delete[] moveStr;
 }
-void move::from_text(const char* str) { // Converts a string to a move. String must be in the form "A4-B3"
+void _move::from_text(const char* str) { // Converts a string to a move. String must be in the form "A4-B3"
     this->from = position(str[0], str[1]);
     this->to = position(str[3], str[4]);
 }
-char* move::to_text(void) { //converts a move to a string. String must be in the form "A4-B3"
+char* _move::to_text(void) { //converts a move to a string. String must be in the form "A4-B3"
     //i have a new variable (moveStr) and i want to assign e.g. "A4-B3
-    char* fromStr = from.to_text();
-    char* toStr = to.to_text();
-    moveStr[0] = fromStr[0];
-    moveStr[1] = fromStr[1];
-    moveStr[2] = '-';
-    moveStr[3] = toStr[0];
-    moveStr[4] = toStr[1];
-    moveStr[5] = '\0';
-
+    static char moveStr[6] = {'0','0', '-', '0','0','\0'};
+    strncpy(moveStr, from.to_text(), 2);
+    strncpy(moveStr+3, to.to_text(), 2);
     return moveStr;
 }
-void move::set_from(const position& new_from) { // Sets the from using a position
+void _move::set_from(const position& new_from) { // Sets the 'from' using a position
     this->from = new_from;
 }
 
-void move::set_to(const position& new_to) {
+void _move::set_to(const position& new_to) {
     this->to = new_to;
 }
 
-position& move::get_from(void) {
+position& _move::get_from(void) {
     return this->from;
 }
 
-position& move::get_to(void) {
+position& _move::get_to(void) {
     return this->to;
 }
 
-void move::get_move(void){}
-
+void _move::get_move(void) { //Provides a prompt to the user to enter a move. Make use of the from_text() method to convert the entered move appropriately.
+    static char usersMove[6] = {'0','0', '-', '0', '0', '\0' };
+    cout << "Please enter a move in the form of \"A1-B2\": " << endl;
+    cin >> usersMove;
+    cout << "You entered: " << usersMove << endl;
+    //Convert to uppercase if not already
+    for(int i=0; i<strlen(usersMove); i++){
+        if(!isupper(usersMove[i])){
+            usersMove[i] = toupper(usersMove[i]);
+        }
+    }
+    cout << "Converting to uppercase: " << usersMove << endl;
+    from_text(usersMove);
 }
+
+
+
 
 
 
@@ -193,30 +203,28 @@ void move::get_move(void){}
 //---------------------------------------------------------------------
 // Represents a linked list of moves
 //---------------------------------------------------------------------
-//DO LAST!!! #TO DO
 
-class move_list {
-  private:
-    move m;             // The move in the list
+
+class move_list { //DO LAST!!! #TODO
+private:
+    _move m;             // The move in the list
     move_list *next;    // The next entry in the list.
 public:
-  move_list( const move &m );   // Constructor
-  ~move_list();                 // Destructor – removes all items in the list.
-  move_list * add( move_list* m ); // Inserts m into the start of he list, and returns the new start.
+    move_list( const _move &m );   // Constructor
+    ~move_list();                 // Destructor – removes all items in the list.
+    move_list * add( move_list* m ); // Inserts m into the start of he list, and returns the new start.
 
 //  Note that for the move_list constructor, you may find it convenient to implement either:
-  //move::move( const move &m ); // move copy constructor or,
-  //void move::operator =( const move &m ); // move assignment operator
+    //move::move( const move &m ); // move copy constructor or,
+    //void move::operator =( const move &m ); // move assignment operator
 
- };
+};
 
-move_list::move_list(const move &m) {
-
-}
-
-move_list::~move_list(){  }
-
-move_list * move_list::add( move_list* m ){}
+//move_list::move_list(const _move &m) { }
+//
+//move_list::~move_list(){  }
+//
+//move_list * move_list::add( move_list* m ){}
 
 
 
@@ -240,10 +248,14 @@ enum piece { EMPTY, RED_PAWN, GREEN_PAWN, RED_KING, GREEN_KING, INVALID };
 class game_state {
 private:
     //can do this, but, not ideal. 'Bad' practise because of memory issues
-    piece board[4][4] = { {EMPTY, GREEN_PAWN, EMPTY, GREEN_PAWN},
-                            { EMPTY, EMPTY, EMPTY, EMPTY },
-                            { EMPTY, EMPTY, EMPTY, EMPTY },
-                            { RED_PAWN, EMPTY, RED_PAWN, EMPTY } };
+//    piece board[4][4] = { {INVALID, GREEN_PAWN, INVALID, GREEN_PAWN}, TODO change this back
+//                          { EMPTY, INVALID, EMPTY, INVALID },
+//                          { INVALID, EMPTY, INVALID, EMPTY },
+//                          { RED_PAWN, INVALID, RED_PAWN, INVALID } };
+    piece board[4][4] = { { INVALID, EMPTY, INVALID, EMPTY },
+                          { RED_PAWN, INVALID, RED_PAWN, INVALID },
+                          { INVALID, GREEN_PAWN, INVALID, GREEN_PAWN },
+                          { EMPTY, INVALID, EMPTY, INVALID } };
     int moveCount = 0;
     bool isGameOver = false;
     bool isRedTurn = false;
@@ -267,18 +279,10 @@ public:
     piece get_piece(const position& p); 	// What piece is at the specified position
 
     void display( void ); // Provides a simple user interface to display your game using text-based graphics on the console window.
-    bool check_move( const move &m );// Checks if a provided move is a legal move, and return true if it is, otherwise return false. Note that if there is no piece at the starting square, the move is not legal.
-    void make_move( const move &m ); // Plays the move, and updates the game state accordingly. This includes the position of pieces on the board, the move counter, and whether or not the game is over. Don’t forget to convert pawns to kings when they reach the opposite end of the board.
+    bool check_move(_move m );// Checks if a provided move is a legal move, and return true if it is, otherwise return false. Note that if there is no piece at the starting square, the move is not legal.
+    void make_move( _move &m ); // Plays the move, and updates the game state accordingly. This includes the position of pieces on the board, the move counter, and whether or not the game is over. Don’t forget to convert pawns to kings when they reach the opposite end of the board.
 
-    move_list * find_moves( void );   // This should return a linked list of possible moves that can be made from the current position (depending on which player it is to play).
-
-    void printBoard() {
-        std::cout << "************************" << std::endl;
-        std::cout << "|  " << this->board[3][0] << "  |  " << this->board[3][1] << "  |  " << this->board[3][2] << "  |  " << this->board[3][3] << "  |  " << std::endl;
-        std::cout << "|  " << this->board[2][0] << "  |  " << this->board[2][1] << "  |  " << this->board[2][2] << "  |  " << this->board[2][3] << "  |  " << std::endl;
-        std::cout << "|  " << this->board[1][0] << "  |  " << this->board[1][1] << "  |  " << this->board[1][2] << "  |  " << this->board[1][3] << "  |  " << std::endl;
-        std::cout << "|  " << this->board[0][0] << "  |  " << this->board[0][1] << "  |  " << this->board[0][2] << "  |  " << this->board[0][3] << "  |  " << std::endl;
-    }
+    // TODO move_list * find_moves( void );   // This should return a linked list of possible moves that can be made from the current position (depending on which player it is to play).
 
 };
 
@@ -303,22 +307,21 @@ game_state::~game_state(){
 }
 
 void game_state::new_game( void ){
-    //Reset board pieces
-    for (int row = 0; row < 4; row++) {
-        for (int col = 0; col < 4; col++) {
-            board[row][col] = EMPTY;
-        }
-    }
-    this->board[3][0] = RED_PAWN;
-    this->board[3][2] = RED_PAWN;
-    this->board[0][3] = GREEN_PAWN;
-    this->board[0][1] = GREEN_PAWN;
+    //Reset board pieces TODO
+//    for (int row = 0; row < 4; row++) {
+//        for (int col = 0; col < 4; col++) {
+//            board[row][col] = EMPTY;
+//        }
+//    }
+//    this->board[3][0] = RED_PAWN;
+//    this->board[3][2] = RED_PAWN;
+//    this->board[0][3] = GREEN_PAWN;
+//    this->board[0][1] = GREEN_PAWN;
 
-    //this->board[4][4] = {                                                 WHY DOESNT THIS WORK????        #TO DO
-    //    {GREEN_PAWN, GREEN_PAWN, GREEN_PAWN, GREEN_PAWN},
-    //    {EMPTY, EMPTY, EMPTY, EMPTY,},
-    //    {EMPTY, EMPTY, EMPTY, EMPTY},
-    //    { RED_PAWN, EMPTY, RED_PAWN, EMPTY} };
+//    this->board[4][4] = { {INVALID, GREEN_PAWN, INVALID, GREEN_PAWN},
+//                              { EMPTY, INVALID, EMPTY, INVALID },
+//                              { INVALID, EMPTY, INVALID, EMPTY },
+//                              { RED_PAWN, INVALID, RED_PAWN, INVALID } };
     this->moveCount = 0;
     this->isGameOver = false;
     this->isRedTurn = false;
@@ -327,21 +330,21 @@ void game_state::new_game( void ){
 
 
 bool game_state::is_game_over( void ){
-        // if A player loses the game if they cannot make a legal move. Either their pieces are blocked, or
-        //all of their pieces have been captured.
-        if (moveCount >= 40) {
-            this->isGameOver = true;
-            isRedTurn = false;
-            isGreenTurn = false;
-            std::cout << "Game over function: You've reached the maximum number of turns" << std::endl;
-            return true;
-        } else if (isGameOver) { // game over triggered somewhere else
-            //std::cout << "Game is over -> currently for debugging" << std::endl;
-            isRedTurn = false;
-            isGreenTurn = false;
-            return true;
-        }
-        return false;
+    // if A player loses the game if they cannot make a legal move. Either their pieces are blocked, or
+    //all of their pieces have been captured.
+    if (moveCount >= 40) {
+        this->isGameOver = true;
+        isRedTurn = false;
+        isGreenTurn = false;
+        std::cout << "Game over function: You've reached the maximum number of turns" << std::endl;
+        return true;
+    } else if (isGameOver) { // game over triggered somewhere else
+        //std::cout << "Game is over -> currently for debugging" << std::endl;
+        isRedTurn = false;
+        isGreenTurn = false;
+        return true;
+    }
+    return false;
 }
 bool game_state::is_red_turn(void) {
     return this->isRedTurn;
@@ -368,7 +371,8 @@ void game_state::increment_move( void ){
 
     }
     else {
-        //error or game is over?
+        //error or game is over? TODO
+        cout << "error in increment_move" << endl;
     }
 }
 
@@ -400,21 +404,99 @@ piece game_state::get_piece( const position& p ) { // represents a position e.g.
 
 void game_state::display()
 {
-    printBoard();
+    for (int row = 0; row < 4; row++) {
+        for (int col = 0; col < 4; col++) {
+            if(board[row][col] == INVALID) { board[row][col] = EMPTY; } //todo fix this, once these are assigned empty they'll stay as empty
+        }
+    }
+    cout << endl;
+    cout << "******************************" << endl;
+    cout << "     ||  A  |  B  |  C  |  D  |" << endl;
+    cout << " ------------------------------ " << endl;
+    cout << "|| 4 |" << "|  " << this->board[3][0] << "  |  " << this->board[3][1] << "  |  " << this->board[3][2] << "  |  " << this->board[3][3] << "  |  " << endl;
+    cout << "|| 3 |" << "|  " << this->board[2][0] << "  |  " << this->board[2][1] << "  |  " << this->board[2][2] << "  |  " << this->board[2][3] << "  |  " << endl;
+    cout << "|| 2 |" << "|  " << this->board[1][0] << "  |  " << this->board[1][1] << "  |  " << this->board[1][2] << "  |  " << this->board[1][3] << "  |  " << endl;
+    cout << "|| 1 |" << "|  " << this->board[0][0] << "  |  " << this->board[0][1] << "  |  " << this->board[0][2] << "  |  " << this->board[0][3] << "  |  " << endl;
 }
 
-bool game_state::check_move(const move &m)
+bool game_state::check_move(_move m)   /*Checks if a provided move is a legal move, and return true if it is, otherwise return false.
+                                                * Note that if there is no piece at the starting square, the move is not legal.*/
 {
-    //TO DO
-    return true;
+//    if(m.get_from()) TODO maybe put some red piece & red turn check here?
+    if (m.get_to().is_valid() && m.get_from().is_valid()) { //move is a valid location on board
+        cout << "This is a valid location on board." << endl;
+        if(get_piece(m.get_to()) == EMPTY) { // if the 'to' position isnt taken already/if there's a vacant space on the other side
+            cout << "The new position is empty" << endl;
+            return true;
+        }
+    }
+    return false;
 }
 
-void game_state::make_move(const move &m)
+void game_state::make_move(_move &m) // removed const
 {
+    //find starting position of piece on board
+    int from_row = int(m.get_from().y) - 49; // "- 48" converts the char to int
+    int from_col = -1;
+    switch(m.get_from().x) {
+        case 'A':
+            from_col = 0;
+            break;
+        case 'B':
+            from_col = 1;
+            break;
+        case 'C':
+            from_col = 2;
+            break;
+        case 'D':
+            from_col = 3;
+            break;
+        default:
+            cout << "error" << endl;
+    }
 
+    //find ending position of piece on board
+    int to_row = int(m.get_to().y) - 49;
+    int to_col = -1;
+    switch(m.get_to().x) {
+        case 'A':
+            to_col = 0;
+            break;
+        case 'B':
+            to_col = 1;
+            break;
+        case 'C':
+            to_col = 2;
+            break;
+        case 'D':
+            to_col = 3;
+            break;
+        default:
+            cout << "error" << endl;
+    }
+
+    //move piece from a to be - set start to empty --> set end to new location
+    if ((this->board[from_row][from_col] == GREEN_PAWN || this->board[from_row][from_col] == GREEN_KING) && isGreenTurn) { //  this is to stop them being able to move an opposite piece abd make it their colour
+        // if reaching the end of the board, turn into a king OR if already a king, keep as a king
+        if(to_row == 3 || this->board[from_row][from_col] == GREEN_KING) {
+            board[to_row][to_col] = GREEN_KING;
+        } else {
+            board[to_row][to_col] = GREEN_PAWN;
+        }
+        this->board[from_row][from_col] = EMPTY; // set the old position to empty
+    } else if((this->board[from_row][from_col] == RED_PAWN || this->board[from_row][from_col] == RED_KING) && isRedTurn){
+        if(to_row == 0 || this->board[from_row][from_col] == RED_KING) {
+            board[to_row][to_col] = RED_KING;
+        } else {
+            board[to_row][to_col] = RED_PAWN; //TODO NEXT IS HOW TO 'TAKE' A PLAYER
+        }
+        this->board[from_row][from_col] = EMPTY;
+    } else {
+        cout << "Game state is confused" << endl;
+    }
 }
 
-move_list *game_state::find_moves()
-{
-
-}
+//move_list *game_state::find_moves()
+//{
+//
+//}
