@@ -1,6 +1,3 @@
-#include <QCoreApplication>
-#include <QDebug>
-
 // Name: Laressa Hood
 // ID:  15331224
 
@@ -11,8 +8,8 @@ using namespace std;
 
 int main()
 {
-    const int maxNumOfRetries = 4;
-    int retries = 0;
+//    const int maxNumOfRetries = 4;
+//    int retries = 0;
     game_state *gameState = new game_state();
     //gameState->new_game();
     cout << "For now, green always starts. " << endl;
@@ -23,18 +20,39 @@ int main()
         else { cout << "Red, its your turn. "; }
 
         // Making a move
-        _move first_move =_move(); // initialise to nothing for now - we are gonna read in from the user
-        first_move.get_move();
-        while (!gameState->check_move(first_move)) {
-            cout << "That is an invalid move. Please try again. " << endl;
-            first_move.get_move();
-            if(retries >= maxNumOfRetries) { cout << "You've reached the maximum number of retries" << endl; return 1; }
-            retries++;
+        _move current_move =_move(); // initialise to nothing for now - we are gonna read in from the user
+
+        gameState->find_moves(gameState->movesPlayed);
+        cout << "Your possible moves are: ";
+        for(int i = 0; i< (int)gameState->possibleMoves.size(); i++){
+            cout << gameState->possibleMoves[i].to_text();
+            if(i < ((int)gameState->possibleMoves.size()-1)) {// more then one move left
+                cout << ", ";
+            } else {
+                cout << "." << endl;
+            }
         }
 
-        gameState->make_move(first_move);
+        current_move.get_move();
+        while (!gameState->check_move(current_move)) {
+//            clear();
+            gameState->display();
+            cout << "That is an invalid move. Please try again. " << endl;
+            current_move.get_move();
+//            if(retries >= maxNumOfRetries) { cout << "You've reached the maximum number of retries" << endl; return 1; }
+//            retries++;
+        }
+        //moveList = new move_list(current_move);
+        gameState->movesPlayed.push_back(current_move);
+
+
+
+
+        gameState->make_move(current_move);
 
         gameState->increment_move();
+
+        cout << "Number of moves played: " << gameState->get_move_number() << endl;
 
         gameState->display();
     }
